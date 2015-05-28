@@ -2,6 +2,7 @@ require 'rubygems'
 require 'rubyXL'
 require 'spreadsheet'
 require 'csv'
+require 'colorize'
 require_relative '../lib/workbook_parser'
 
 all_files =  Dir.glob('test_files/**/*').select{ |e| File.file? e }
@@ -20,7 +21,7 @@ all_files.each do |file_path|
     puts "#{all_workbook_rows.length} records found"
     data.concat(all_workbook_rows)
   rescue Exception => e
-  	puts "\nERROR: ========>  #{e}"
+  	puts "\nERROR: #{e}".red
     FileUtils.mv(file_path, 'error_files')
   end
 end
