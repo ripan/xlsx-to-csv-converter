@@ -6,20 +6,23 @@ require_relative '../lib/workbook_parser'
 
 all_files =  Dir.glob('excel_files/**/*').select{ |e| File.file? e }
 
-csv_header = ["Supplier ID", "Supplier", "Panel/Side ID", "Environment", "Format Group", "Format Type", "Address", "Postcode", "City", "Longitude", "Latitude"]
+csv_header = ["Supplier ID", "Supplier", "Panel/Side ID", "Environment", "Format Group", "Format Type", "Address", "Postcode", "City", "Longitude", "Latitude", "FileName"]
 
 data = []
 data.push(csv_header)
 
 all_files.each do |file_path|
-  puts "Processing #{file_path}"
+  puts "\nProcessing #{file_path}"
   wp = WorkbookParser.new(file_path)
   all_workbook_rows = wp.get_all_rows
   puts "#{all_workbook_rows.length} records found"
+
+  all_workbook_rows.each { |row|  row.push(File.basename(file_path)) } # Add file path column
+
   data.concat(all_workbook_rows)
 end
 
-puts "DATA: #{data.length} "
+puts "\nDATA: #{data.length} "
 
 csv_file_path = "csv_files/final.csv"
 

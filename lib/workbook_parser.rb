@@ -28,7 +28,7 @@ class WorkbookParser
     workbook.worksheets.each_with_index do |row, index|
       sheet = workbook.worksheet(index)
       sheet.each 1 do |row|
-        @all_rows.push(row)
+        @all_rows.push(row.to_a)
       end
     end
   end
