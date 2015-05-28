@@ -4,7 +4,7 @@ require 'spreadsheet'
 require 'csv'
 require_relative '../lib/workbook_parser'
 
-all_files =  Dir.glob('excel_files/**/*').select{ |e| File.file? e }
+all_files =  Dir.glob('test_files/**/*').select{ |e| File.file? e }
 
 csv_header = ["Supplier ID", "Supplier", "Panel/Side ID", "Environment", "Format Group", "Format Type", "Address", "Postcode", "City", "Longitude", "Latitude", "FileName"]
 
@@ -13,13 +13,16 @@ data.push(csv_header)
 
 all_files.each do |file_path|
   puts "\nProcessing #{file_path}"
-  wp = WorkbookParser.new(file_path)
-  all_workbook_rows = wp.get_all_rows
-  puts "#{all_workbook_rows.length} records found"
-
-  all_workbook_rows.each { |row|  row.push(File.basename(file_path)) } # Add file path column
-
-  data.concat(all_workbook_rows)
+  begin
+    wp = WorkbookParser.new(file_path)
+    all_workbook_rows = wp.get_all_rows
+    all_workbook_rows.each { |row|  row.push(File.basename(file_path)) } # Add file path column
+    puts "#{all_workbook_rows.length} records found"
+    data.concat(all_workbook_rows)
+  rescue Exception => e
+  	puts "\nERROR: ========>  #{e}"
+    FileUtils.mv(file_path, 'error_files')
+  end
 end
 
 puts "\nDATA: #{data.length} "
