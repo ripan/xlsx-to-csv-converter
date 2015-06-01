@@ -4,7 +4,7 @@ require 'spreadsheet'
 require 'csv'
 
 class WorkbookParser
-  attr_accessor :file_path, :all_rows, :row
+  attr_accessor :file_path, :all_rows, :row, :sheet_name
   def initialize(file_path)
     @file_path = file_path
     @all_rows = []
@@ -27,6 +27,7 @@ class WorkbookParser
     workbook = Spreadsheet.open(@file_path)
     workbook.worksheets.each_with_index do |row, index|
       sheet = workbook.worksheet(index)
+      @sheet_name = sheet.name
       sheet.each 1 do |row|
         add_row(row.to_a)
       end
@@ -36,6 +37,7 @@ class WorkbookParser
   def parse_xlsx
     workbook = RubyXL::Parser.parse(@file_path)
     workbook.worksheets.each do |ws|
+      @sheet_name = ws.sheet_name
       rows = ws.extract_data
       rows.drop(1).each do |row|
         add_row(row)
@@ -58,11 +60,9 @@ class WorkbookParser
       "Longitude" => longitude,
       "Latitude" => latitude,
       "FileName" => fileName,
+      "SheetName" => sheet_name,
     }
-    puts @row.inspect
-    puts row_hash.inspect
-    asdas
-    #@all_rows.push(row)
+    @all_rows.push(row_hash)
   end
 
   def supplier_id
@@ -74,16 +74,13 @@ class WorkbookParser
   end
 
   def panel_side_id
+    panelsideid = @row[2]
     case fileName
     when 'JCDecaux_all.xlsx'
-      @row[2] = "#{@row[2]} / #{@row[3]}"
+      panelsideid = "#{@row[2]} / #{@row[3]}"
       @row.delete_at(3)
-    when 6
-      puts "It's 6"
-    else
     end
-
-    @row[2]
+    panelsideid
   end
 
   def environment
@@ -99,23 +96,48 @@ class WorkbookParser
   end
 
   def address
-    @row[6]
+    addr = @row[6]
+    case fileName
+    when 'CS Digital_all.xlsx'
+      addr = @row[7]
+    end
+    addr
   end
 
   def postcode
-    @row[7]
+    pc = @row[7]
+    case fileName
+    when 'CS Digital_all.xlsx'
+      pc = @row[8]
+    end
+    pc
   end
 
   def city
-    @row[8]
+    city = @row[8]
+    case fileName
+    when 'CS Digital_all.xlsx'
+      city = @row[6]
+    end
+    city
   end
 
   def longitude
-    @row[9]
+    lng = @row[9]
+    case fileName
+    when 'CS Digital_all.xlsx'
+      lng = @row[11]
+    end
+    lng.to_s.split('.').join('.').gsub(' ','').to_f
   end
 
   def latitude
-    @row[10]
+    lat = @row[10]
+    case fileName
+    when 'CS Digital_all.xlsx'
+      lat = @row[10]
+    end
+    lat.to_s.split('.').join('.').gsub(' ','').to_f
   end
 
   def fileName
