@@ -22,7 +22,7 @@ all_files.each do |file_path|
     data.concat(all_workbook_rows)
   rescue Exception => e
   	puts "\nERROR: #{e}".red
-    FileUtils.mv(file_path, 'error_files')
+    #FileUtils.mv(file_path, 'error_files')
   end
 end
 
